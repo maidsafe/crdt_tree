@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/tree_crdt/tree_crdt.svg?branch=master)](https://travis-ci.org/tree_crdt/crdt_tree) 
+[![crates.io](http://meritbadge.herokuapp.com/crdt_tree)](https://crates.io/crates/crdt_tree)
 [![docs.rs](https://docs.rs/crdt_tree/badge.svg)](https://docs.rs/crdt_tree)
 
 # crdt_tree
