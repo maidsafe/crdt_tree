@@ -13,7 +13,7 @@ A Conflict-free Replicated Data Type (CRDT) Tree written in Rust.
 
 This crate aims to be an accurate implementation of the tree crdt algorithm described in the paper: 
 
-[A highly-available move operation for replicated trees and distributed filesystems](https://martin.kleppmann.com/papers/move-op.pdf) by M. Klepmann, et al.
+[A highly-available move operation for replicated trees and distributed filesystems](https://martin.kleppmann.com/papers/move-op.pdf) by M. Kleppmann, et al.
 
 Please refer to the paper for a description of the algorithm's properties.
 
