@@ -66,6 +66,11 @@ impl<A: Actor> Clock<A> {
         &self.actor_id
     }
 
+    /// returns counter
+    pub fn counter(&self) -> u64 {
+        self.counter
+    }
+
     /// returns a new Clock with same actor but counter is
     /// max(this_counter, other_counter)
     pub fn merge(&self, other: &Self) -> Self {
