@@ -169,7 +169,7 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
     }
 }
 
-/// Implement IntoIterator for Tree.  This is useful for
+/// Implement `IntoIterator` for `Tree`.  This is useful for
 /// walking all Nodes in tree without knowing a starting point.
 impl<ID: TreeId, TM: TreeMeta> IntoIterator for Tree<ID, TM> {
     type Item = (ID, TreeNode<ID, TM>);

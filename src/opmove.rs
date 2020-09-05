@@ -93,6 +93,7 @@ pub struct OpMove<ID: TreeId, TM: TreeMeta, A: Actor> {
 
 impl<ID: TreeId, TM: TreeMeta, A: Actor> OpMove<ID, TM, A> {
     /// create a new OpMove instance
+    #[inline]
     pub fn new(timestamp: Clock<A>, parent_id: ID, metadata: TM, child_id: ID) -> Self {
         Self {
             timestamp,
@@ -103,28 +104,32 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> OpMove<ID, TM, A> {
     }
 
     /// returns timestamp reference
+    #[inline]
     pub fn timestamp(&self) -> &Clock<A> {
         &self.timestamp
     }
 
-    /// returns parent_id reference
+    /// returns `parent_id` reference
+    #[inline]
     pub fn parent_id(&self) -> &ID {
         &self.parent_id
     }
 
     /// returns metadata reference
+    #[inline]
     pub fn metadata(&self) -> &TM {
         &self.metadata
     }
 
-    /// returns child_id reference
+    /// returns `child_id` reference
+    #[inline]
     pub fn child_id(&self) -> &ID {
         &self.child_id
     }
 }
 
 impl<ID: TreeId, A: Actor, TM: TreeMeta> From<LogOpMove<ID, TM, A>> for OpMove<ID, TM, A> {
-    /// creates OpMove from a LogOpMove
+    /// creates `OpMove` from a `LogOpMove`
     fn from(l: LogOpMove<ID, TM, A>) -> Self {
         l.op_into()
     }

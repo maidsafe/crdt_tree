@@ -9,7 +9,7 @@
 
 //! Holds Tree CRDT state and implements the core algorithm.
 //!
-//! State is the primary object to instantiate that represents
+//! `State` is the primary object to instantiate that represents
 //! a CRDT Tree.
 //!
 //! For usage/examples, see:
@@ -26,8 +26,8 @@
 //!
 //! For clarity, data structures in this implementation are named
 //! the same as in the paper (State, Tree) or close to
-//! (OpMove --> Move, LogOpMove --> LogOp).  Some are not explicitly
-//! named in the paper, such as TreeId, TreeMeta, TreeNode, Clock.
+//! (`OpMove` --> `Move`, `LogOpMove` --> `LogOp`).  Some are not explicitly
+//! named in the paper, such as `TreeId`, `TreeMeta`, `TreeNode`, `Clock`.
 
 use serde::{Deserialize, Serialize};
 use std::cmp::{Eq, Ordering, PartialEq};
@@ -35,11 +35,11 @@ use std::cmp::{Eq, Ordering, PartialEq};
 use super::{Clock, LogOpMove, OpMove, Tree, TreeId, TreeMeta, TreeNode};
 use crdts::{Actor, CmRDT};
 
-/// State.  This is the primary interface for working with a
+/// `State`.  This is the primary interface for working with a
 /// Tree CRDT.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct State<ID: TreeId, TM: TreeMeta, A: Actor> {
-    // a list of LogMove in descending timestamp order.
+    // a list of `LogMove` in descending timestamp order.
     log_op_list: Vec<LogOpMove<ID, TM, A>>,
 
     // a tree structure, ie a set of (parent, meta, child) triples
@@ -57,16 +57,19 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> State<ID, TM, A> {
     }
 
     /// returns tree reference
+    #[inline]
     pub fn tree(&self) -> &Tree<ID, TM> {
         &self.tree
     }
 
     /// returns mutable tree reference
+    #[inline]
     pub fn tree_mut(&mut self) -> &mut Tree<ID, TM> {
         &mut self.tree
     }
 
     /// returns log reference
+    #[inline]
     pub fn log(&self) -> &Vec<LogOpMove<ID, TM, A>> {
         &self.log_op_list
     }
@@ -111,12 +114,12 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> State<ID, TM, A> {
     /// consisting of a LogMove operation (which will be added to the log) and
     /// an updated tree.
     pub fn do_op(&mut self, op: OpMove<ID, TM, A>) -> LogOpMove<ID, TM, A> {
-        // When a replica applies a Move op to its tree, it also records
-        // a corresponding LogMove op in its log.  The t, p, m, and c
-        // fields are taken directly from the Move record, while the oldp
+        // When a replica applies a `Move` op to its tree, it also records
+        // a corresponding `LogMove` op in its log.  The t, p, m, and c
+        // fields are taken directly from the `Move` record, while the `oldp`
         // field is filled in based on the state of the tree before the move.
-        // If c did not exist in the tree, oldp is set to None.  Otherwise
-        // oldp records the previous parent and metadata of c.
+        // If c did not exist in the tree, `oldp` is set to None.  Otherwise
+        // `oldp` records the previous parent and metadata of c.
         let oldp = self.tree.find(op.child_id()).cloned();
 
         // ensures no cycles are introduced.  If the node c
@@ -148,7 +151,7 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> State<ID, TM, A> {
     }
 
     /// redo_op uses do_op to perform an operation
-    /// again and recomputes the LogMove record (which
+    /// again and recomputes the `LogMove` record (which
     /// might have changed due to the effect of the new operation)
     pub fn redo_op(&mut self, log: LogOpMove<ID, TM, A>) {
         let op = OpMove::from(log);
@@ -160,7 +163,7 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> State<ID, TM, A> {
     /// See general description of apply/undo/redo above.
     ///
     /// The apply_op func takes two arguments:
-    /// a Move operation to apply and the current replica
+    /// a `Move` operation to apply and the current replica
     /// state; and it returns the new replica state.
     /// The constrains `t::{linorder} in the type signature
     /// indicates that timestamps `t are instance if linorder
@@ -223,7 +226,7 @@ type LogOpList<ID, TM, A> = Vec<LogOpMove<ID, TM, A>>;
 impl<ID: TreeId, A: Actor, TM: TreeMeta> From<(Vec<LogOpMove<ID, TM, A>>, Tree<ID, TM>)>
     for State<ID, TM, A>
 {
-    /// creates State from tuple (Vec<LogOpMove>, Tree)
+    /// creates State from tuple `(Vec<LogOpMove>, Tree)`
     fn from(e: (LogOpList<ID, TM, A>, Tree<ID, TM>)) -> Self {
         Self {
             log_op_list: e.0,
@@ -235,7 +238,7 @@ impl<ID: TreeId, A: Actor, TM: TreeMeta> From<(Vec<LogOpMove<ID, TM, A>>, Tree<I
 impl<ID: TreeId, TM: TreeMeta, A: Actor> CmRDT for State<ID, TM, A> {
     type Op = OpMove<ID, TM, A>;
 
-    /// Apply an operation to a State instance.
+    /// Apply an operation to a `State` instance.
     fn apply(&mut self, op: Self::Op) {
         self.apply_op(op);
     }
