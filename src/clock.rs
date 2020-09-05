@@ -52,21 +52,23 @@ impl<A: Actor> Clock<A> {
 
     /// returns a new Clock with same actor but counter incremented by 1.
     pub fn inc(&self) -> Self {
-        Self::new(self.actor_id.clone(), Some(self.counter + 1))
+        Self::new(self.actor_id.clone(), Some(self.counter.saturating_add(1)))
     }
 
     /// increments clock counter and returns a clone
     pub fn tick(&mut self) -> Self {
-        self.counter += 1;
+        self.counter = self.counter.saturating_add(1);
         self.clone()
     }
 
     /// returns actor_id reference
+    #[inline]
     pub fn actor_id(&self) -> &A {
         &self.actor_id
     }
 
     /// returns counter
+    #[inline]
     pub fn counter(&self) -> u64 {
         self.counter
     }
