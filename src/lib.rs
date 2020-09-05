@@ -19,7 +19,7 @@
 //! "A highly-available move operation for replicated trees
 //! and distributed filesystems" [1] by Martin Klepmann, et al.
 //!
-//! [1] https://martin.kleppmann.com/papers/move-op.pdf
+//! [1] <https://martin.kleppmann.com/papers/move-op.pdf>
 //!
 //! For clarity, data structures in this implementation are named
 //! the same as in the paper (State, Tree) or close to
@@ -39,19 +39,19 @@ pub mod clock;
 /// This module contains OpMove.
 pub mod opmove;
 
-/// This module contains LogOpMove.
+/// This module contains `LogOpMove`.
 pub mod logopmove;
 
-/// This module contains TreeId.
+/// This module contains `TreeId`.
 pub mod treeid;
 
-/// This module contains TreeMeta.
+/// This module contains `TreeMeta`.
 pub mod treemeta;
 
-/// This module contains TreeNode.
+/// This module contains `TreeNode`.
 pub mod treenode;
 
 pub use self::{
-    clock::Clock, logopmove::LogOpMove, opmove::OpMove, state::State, tree::Tree, treeid::TreeId,
-    treemeta::TreeMeta, treenode::TreeNode,
+clock::Clock, logopmove::LogOpMove, opmove::OpMove, state::State, tree::Tree, treeid::TreeId,
+treemeta::TreeMeta, treenode::TreeNode,
 };
