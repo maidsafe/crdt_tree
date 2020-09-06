@@ -34,6 +34,7 @@ use std::cmp::{Eq, Ordering, PartialEq};
 
 use super::{Clock, LogOpMove, OpMove, Tree, TreeId, TreeMeta, TreeNode};
 use crdts::{Actor, CmRDT};
+use log::info;
 
 /// State.  This is the primary interface for working with a
 /// Tree CRDT.
@@ -176,13 +177,8 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> State<ID, TM, A> {
                     // This case should never happen in normal operation
                     // because it is required that all timestamps are unique.
                     // The crdt paper does not even check for this case.
-                    //
-                    // We can throw an exception to catch it during dev/test.
-                    // #[cfg(debug_assertions)]
-                    // panic!("applying op with timestamp equal to previous op.  Every op should have a unique timestamp.");
 
-                    // Production code should just treat it as a non-op.
-                    // #[cfg(not(debug_assertions))]
+                    info!("Non unique timestamp!");
                 }
                 Ordering::Less => {
                     let logop = self.log_op_list.remove(0); // take from beginning of array
