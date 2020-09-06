@@ -14,6 +14,7 @@ use crdts::Actor;
 use rand::Rng;
 use std::collections::HashMap;
 use std::env;
+use log::debug;
 
 #[derive(Debug)]
 struct Replica<ID: TreeId, TM: TreeMeta, A: Actor> {
@@ -41,7 +42,7 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor + std::fmt::Debug> Replica<ID, TM, A> {
     pub fn track_causally_stable_threshold(&mut self, flag: bool) {
         self.track_causally_stable_threshold = flag;
     }
-
+    #[inline]
     pub fn id(&self) -> &A {
         &self.id
     }
@@ -56,12 +57,13 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor + std::fmt::Debug> Replica<ID, TM, A> {
             // required, it needn't execute.
             if self.track_causally_stable_threshold {
                 let id = op.timestamp().actor_id();
-                let result = self.latest_time_by_replica.get(id);
-                match result {
-                    Some(latest) if !(op.timestamp() > latest) => {}
+                match self.latest_time_by_replica.get(id) {
+                   Some(latest) if (latest <= op.timestamp()) => {
+                                        debug!("Clock not increased, current timestamp {:?}, provided is {:?}, dropping op!", latest, op.timestamp());
+                                    }
                     _ => {
                         self.latest_time_by_replica
-                            .insert(id.clone(), op.timestamp().clone());
+                            .insert(op.timestamp().actor_id().clone(), op.timestamp().clone());
                     }
                 };
             }
@@ -70,14 +72,17 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor + std::fmt::Debug> Replica<ID, TM, A> {
         }
     }
 
+    #[inline]
     pub fn state(&self) -> &State<ID, TM, A> {
         &self.state
     }
 
+    #[inline]
     pub fn tree(&self) -> &Tree<ID, TM> {
         self.state.tree()
     }
 
+    #[inline]
     pub fn tree_mut(&mut self) -> &mut Tree<ID, TM> {
         self.state.tree_mut()
     }
@@ -103,11 +108,7 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor + std::fmt::Debug> Replica<ID, TM, A> {
 
         let mut v: Vec<&Clock<A>> = self.latest_time_by_replica.values().collect();
         v.sort_unstable_by(|a, b| a.cmp(b));
-        if v.len() > 0 {
-            Some(v[0])
-        } else {
-            None
-        }
+        v.pop() 
     }
 
     pub fn truncate_log(&mut self) -> bool {
