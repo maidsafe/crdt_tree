@@ -119,14 +119,14 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
 
     /// walks tree and calls Fn f for each node.
     /// not used by crdt algo.
-    /// 
+    ///
     /// walk uses a non-recursive algorithm, so calling
     /// it on a deep tree will not cause stack overflow.
     pub fn walk<F>(&self, parent_id: &ID, f: &F)
     where
         F: Fn(&Self, &ID, usize),
     {
-        let mut stack: Vec::<ID> = Vec::new();
+        let mut stack: Vec<ID> = Vec::new();
         stack.push(parent_id.clone());
         while !stack.is_empty() {
             if let Some(next) = stack.pop() {
