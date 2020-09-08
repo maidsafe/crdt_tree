@@ -58,7 +58,7 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor + std::fmt::Debug> Replica<ID, TM, A> {
             if self.track_causally_stable_threshold {
                 let id = op.timestamp().actor_id();
                 match self.latest_time_by_replica.get(id) {
-                    Some(latest) if (latest <= op.timestamp()) => {
+                    Some(latest) if (op.timestamp() <= latest) => {
                         debug!("Clock not increased, current timestamp {:?}, provided is {:?}, dropping op!", latest, op.timestamp());
                     }
                     _ => {
@@ -108,7 +108,11 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor + std::fmt::Debug> Replica<ID, TM, A> {
 
         let mut v: Vec<&Clock<A>> = self.latest_time_by_replica.values().collect();
         v.sort_unstable_by(|a, b| a.cmp(b));
-        v.pop()
+        if v.len() > 0 {
+            Some(v[0])
+        } else {
+            None
+        }
     }
 
     pub fn truncate_log(&mut self) -> bool {
