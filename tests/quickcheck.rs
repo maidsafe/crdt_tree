@@ -92,7 +92,7 @@ fn check_log_is_descending(s: &State<TypeId, TypeMeta, TypeActor>) -> bool {
         let first = &log[i];
         let second = &log[i + 1];
 
-        if !(first.timestamp() > second.timestamp()) {
+        if first.timestamp() <= second.timestamp() {
             return false;
         }
         i += 1;
@@ -121,7 +121,7 @@ fn parent_unique(s: &State<TypeId, TypeMeta, TypeActor>) -> bool {
     // Iterate all tree nodes and store count of each child_id, parent_id pair.
     // If any pair is found to exist more than once, the invariant is broken.
     for (child_id, tn) in s.tree().clone().into_iter() {
-        let key = (child_id.clone(), tn.parent_id().clone());
+        let key = (child_id, *tn.parent_id());
         let cnt = cnts.get(&key).unwrap_or(&0) + 1;
         cnts.insert(key, cnt);
 
@@ -143,8 +143,8 @@ fn state_from_ops(oplist: &OperationList) -> State<TypeId, TypeMeta, TypeActor> 
 
 // helper: checks if operation lists overlap, ie use the same actor_id.
 fn ops_overlap(o1: &OperationList, o2: &OperationList) -> bool {
-    o1.ops.len() > 0
-        && o2.ops.len() > 0
+    !o1.ops.is_empty()
+        && !o2.ops.is_empty()
         && o1.ops[0].timestamp().actor_id() == o2.ops[0].timestamp().actor_id()
 }
 

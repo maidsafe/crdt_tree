@@ -52,6 +52,6 @@ pub mod treemeta;
 pub mod treenode;
 
 pub use self::{
-clock::Clock, logopmove::LogOpMove, opmove::OpMove, state::State, tree::Tree, treeid::TreeId,
-treemeta::TreeMeta, treenode::TreeNode,
+    clock::Clock, logopmove::LogOpMove, opmove::OpMove, state::State, tree::Tree, treeid::TreeId,
+    treemeta::TreeMeta, treenode::TreeNode,
 };
