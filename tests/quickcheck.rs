@@ -27,7 +27,7 @@ struct OperationList {
 impl Iterator for OperationList {
     type Item = OpMove<TypeId, TypeMeta, TypeActor>;
     fn next(&mut self) -> Option<OpMove<TypeId, TypeMeta, TypeActor>> {
-        self.ops.iter().next().cloned()
+        self.ops.get(0).cloned()
     }
 }
 
@@ -71,7 +71,7 @@ impl Arbitrary for OperationList {
             } else {
                 TypeId::arbitrary(g)
             };
-            nodes.push(next_id.clone());
+            nodes.push(next_id);
             let meta = TypeMeta::arbitrary(g);
 
             let op = OpMove::new(clock.tick(), parent_id, meta, next_id);

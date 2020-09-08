@@ -107,7 +107,7 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor + std::fmt::Debug> Replica<ID, TM, A> {
         // is the causally stable threshold.
 
         let mut v: Vec<&Clock<A>> = self.latest_time_by_replica.values().collect();
-        v.sort_unstable_by(|a, b| a.cmp(b));
+        v.sort();
         if !v.is_empty() {
             Some(v[0])
         } else {
