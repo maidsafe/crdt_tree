@@ -117,26 +117,25 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
         }
     }
 
-    /// walks tree and calls callback fn for each node.
+    /// walks tree and calls Fn f for each node.
     /// not used by crdt algo.
-    fn walk_worker<F>(&self, parent_id: &ID, f: &F, depth: usize)
-    where
-        F: Fn(&Self, &ID, usize),
-    {
-        f(self, parent_id, depth);
-        let children = self.children(parent_id);
-        for c in children {
-            self.walk_worker(&c, f, depth + 1);
-        }
-    }
-
-    /// walks tree and calls callback fn for each node.
-    /// not used by crdt algo.
+    ///
+    /// walk uses a non-recursive algorithm, so calling
+    /// it on a deep tree will not cause stack overflow.
     pub fn walk<F>(&self, parent_id: &ID, f: &F)
     where
         F: Fn(&Self, &ID, usize),
     {
-        self.walk_worker(parent_id, f, 0)
+        let mut stack: Vec<ID> = Vec::new();
+        stack.push(parent_id.clone());
+        while !stack.is_empty() {
+            if let Some(next) = stack.pop() {
+                f(self, &next, stack.len());
+                for child in self.children(&next) {
+                    stack.push(child)
+                }
+            }
+        }
     }
 
     /// parent | child

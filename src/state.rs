@@ -34,7 +34,7 @@ use std::cmp::{Eq, Ordering, PartialEq};
 
 use super::{Clock, LogOpMove, OpMove, Tree, TreeId, TreeMeta, TreeNode};
 use crdts::{Actor, CmRDT};
-use log::info;
+use log::warn;
 
 /// `State`.  This is the primary interface for working with a
 /// Tree CRDT.
@@ -178,10 +178,12 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> State<ID, TM, A> {
             match op1.timestamp().cmp(&self.log_op_list[0].timestamp()) {
                 Ordering::Equal => {
                     // This case should never happen in normal operation
-                    // because it is required that all timestamps are unique.
+                    // because it is requirement/invariant that all
+                    // timestamps are unique.  However, uniqueness is not
+                    // strictly enforced in this impl.
                     // The crdt paper does not even check for this case.
-
-                    info!("Non unique timestamp!");
+                    // We just treat it as a no-op.
+                    warn!("op with timestamp equal to previous op ignored. (not applied).  Every op must have a unique timestamp.");
                 }
                 Ordering::Less => {
                     let logop = self.log_op_list.remove(0); // take from beginning of array
