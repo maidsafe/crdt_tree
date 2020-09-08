@@ -88,6 +88,9 @@ impl Arbitrary for OperationList {
 fn check_log_is_descending(s: &State<TypeId, TypeMeta, TypeActor>) -> bool {
     let mut i = 0;
     let log = s.log();
+    if log.is_empty() {
+        return true;
+    }
     while i < log.len() - 1 {
         let first = &log[i];
         let second = &log[i + 1];
