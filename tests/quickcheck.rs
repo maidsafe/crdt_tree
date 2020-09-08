@@ -27,7 +27,7 @@ struct OperationList {
 impl Iterator for OperationList {
     type Item = OpMove<TypeId, TypeMeta, TypeActor>;
     fn next(&mut self) -> Option<OpMove<TypeId, TypeMeta, TypeActor>> {
-        self.ops.iter().next().cloned()
+        self.ops.get(0).cloned()
     }
 }
 
@@ -71,7 +71,7 @@ impl Arbitrary for OperationList {
             } else {
                 TypeId::arbitrary(g)
             };
-            nodes.push(next_id.clone());
+            nodes.push(next_id);
             let meta = TypeMeta::arbitrary(g);
 
             let op = OpMove::new(clock.tick(), parent_id, meta, next_id);
@@ -88,11 +88,14 @@ impl Arbitrary for OperationList {
 fn check_log_is_descending(s: &State<TypeId, TypeMeta, TypeActor>) -> bool {
     let mut i = 0;
     let log = s.log();
+    if log.is_empty() {
+        return true;
+    }
     while i < log.len() - 1 {
         let first = &log[i];
         let second = &log[i + 1];
 
-        if !(first.timestamp() > second.timestamp()) {
+        if first.timestamp() <= second.timestamp() {
             return false;
         }
         i += 1;
@@ -121,7 +124,7 @@ fn parent_unique(s: &State<TypeId, TypeMeta, TypeActor>) -> bool {
     // Iterate all tree nodes and store count of each child_id, parent_id pair.
     // If any pair is found to exist more than once, the invariant is broken.
     for (child_id, tn) in s.tree().clone().into_iter() {
-        let key = (child_id.clone(), tn.parent_id().clone());
+        let key = (child_id, *tn.parent_id());
         let cnt = cnts.get(&key).unwrap_or(&0) + 1;
         cnts.insert(key, cnt);
 
@@ -143,8 +146,8 @@ fn state_from_ops(oplist: &OperationList) -> State<TypeId, TypeMeta, TypeActor> 
 
 // helper: checks if operation lists overlap, ie use the same actor_id.
 fn ops_overlap(o1: &OperationList, o2: &OperationList) -> bool {
-    o1.ops.len() > 0
-        && o2.ops.len() > 0
+    !o1.ops.is_empty()
+        && !o2.ops.is_empty()
         && o1.ops[0].timestamp().actor_id() == o2.ops[0].timestamp().actor_id()
 }
 
