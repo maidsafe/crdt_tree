@@ -51,9 +51,6 @@ pub mod treemeta;
 /// This module contains `TreeNode`.
 pub mod treenode;
 
-/// Errors
-pub mod error;
-
 pub use self::{
 clock::Clock, logopmove::LogOpMove, opmove::OpMove, state::State, tree::Tree, treeid::TreeId,
 treemeta::TreeMeta, treenode::TreeNode,
