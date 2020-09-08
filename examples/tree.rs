@@ -11,10 +11,10 @@ extern crate crdts;
 
 use crdt_tree::{Clock, OpMove, State, Tree, TreeId, TreeMeta};
 use crdts::Actor;
+use log::debug;
 use rand::Rng;
 use std::collections::HashMap;
 use std::env;
-use log::debug;
 
 #[derive(Debug)]
 struct Replica<ID: TreeId, TM: TreeMeta, A: Actor> {
@@ -58,9 +58,9 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor + std::fmt::Debug> Replica<ID, TM, A> {
             if self.track_causally_stable_threshold {
                 let id = op.timestamp().actor_id();
                 match self.latest_time_by_replica.get(id) {
-                   Some(latest) if (latest <= op.timestamp()) => {
-                                        debug!("Clock not increased, current timestamp {:?}, provided is {:?}, dropping op!", latest, op.timestamp());
-                                    }
+                    Some(latest) if (latest <= op.timestamp()) => {
+                        debug!("Clock not increased, current timestamp {:?}, provided is {:?}, dropping op!", latest, op.timestamp());
+                    }
                     _ => {
                         self.latest_time_by_replica
                             .insert(op.timestamp().actor_id().clone(), op.timestamp().clone());
@@ -108,7 +108,7 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor + std::fmt::Debug> Replica<ID, TM, A> {
 
         let mut v: Vec<&Clock<A>> = self.latest_time_by_replica.values().collect();
         v.sort_unstable_by(|a, b| a.cmp(b));
-        v.pop() 
+        v.pop()
     }
 
     pub fn truncate_log(&mut self) -> bool {
