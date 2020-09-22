@@ -5,7 +5,7 @@
 
 name: PR
 
-on: [pull_request]
+on: pull_request
 
 env:
   # Run all cargo commands with --verbose.
@@ -13,7 +13,6 @@ env:
   RUST_BACKTRACE: 1
   # Deny all compiler warnings.
   RUSTFLAGS: "-D warnings"
-
 
 jobs:
   checks:
@@ -140,3 +139,21 @@ jobs:
       # Run list duplicate dependencies script
       - shell: bash
         run: ./scripts/duplicate_dependency_check
+
+  # Test publish using --dry-run.
+  test-publish:
+    name: Test Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Install Rust
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      # Cargo publish dry run
+      - name: Cargo Publish Dry Run
+        run: cargo publish --dry-run
