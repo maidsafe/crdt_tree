@@ -1,6 +1,6 @@
 [package]
 name = "crdt_tree"
-version = "0.0.3"
+version = "0.0.4"
 authors = [ "MaidSafe Developers <dev@maidsafe.net>" ]
 description = "Tree Conflict-free Replicated Data Type (CRDT)"
 homepage = "http://maidsafe.net"
