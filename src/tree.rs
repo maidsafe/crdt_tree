@@ -117,14 +117,14 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
         }
     }
 
-    /// walks tree and calls Fn f for each node.
+    /// walks tree and calls FnMut f for each node.
     /// not used by crdt algo.
     ///
     /// walk uses a non-recursive algorithm, so calling
     /// it on a deep tree will not cause stack overflow.
-    pub fn walk<F>(&self, parent_id: &ID, f: &F)
+    pub fn walk<F>(&self, parent_id: &ID, mut f: F)
     where
-        F: Fn(&Self, &ID, usize),
+        F: FnMut(&Self, &ID, usize),
     {
         let mut stack: Vec<ID> = Vec::new();
         stack.push(parent_id.clone());
@@ -165,6 +165,11 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
             target_id = n.parent_id();
         }
         false
+    }
+
+    /// Total number of nodes (triples) in the tree
+    pub fn num_nodes(&self) -> usize {
+        self.triples.len()
     }
 }
 
