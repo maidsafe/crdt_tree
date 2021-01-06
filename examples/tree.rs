@@ -351,7 +351,7 @@ fn test_walk_deep_tree() {
     r1.apply_ops(&ops);
 
     println!("walking tree...");
-    r1.tree().walk(&ids["root"], &|tree, node_id, depth| {
+    r1.tree().walk(&ids["root"], |tree, node_id, depth| {
         if false {
             let meta = match tree.find(node_id) {
                 Some(tn) => format!("{:?}", tn.metadata()),
