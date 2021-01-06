@@ -242,4 +242,15 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> CmRDT for State<ID, TM, A> {
     }
 }
 
+/// Implement `IntoIterator` for `State`.  This is useful for
+/// walking all Nodes in a tree without knowing a starting point.
+impl<ID: TreeId, TM: TreeMeta, A: Actor> IntoIterator for State<ID, TM, A> {
+    type Item = (ID, TreeNode<ID, TM>);
+    type IntoIter = std::collections::hash_map::IntoIter<ID, TreeNode<ID, TM>>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.tree.into_iter()
+    }
+}
+
 // See <root>/test/tree.rs for tests
