@@ -34,6 +34,7 @@ use std::cmp::{Eq, PartialEq};
 use super::{Clock, LogOpMove, TreeId, TreeMeta};
 use crdts::quickcheck::{Arbitrary, Gen};
 use crdts::Actor;
+use std::hash::Hash;
 
 /// From the paper:
 /// ----
@@ -79,7 +80,7 @@ use crdts::Actor;
 /// changes, and apply these operations using the algorithm
 /// described...
 /// ----
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct OpMove<ID: TreeId, TM: TreeMeta, A: Actor> {
     /// lamport clock + actor
     timestamp: Clock<A>,
