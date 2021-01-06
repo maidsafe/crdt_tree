@@ -31,6 +31,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 
 use crdts::Actor;
+use std::hash::{Hash, Hasher};
 
 /// lamport clock + actor
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -110,6 +111,13 @@ impl<A: Actor> PartialEq for Clock<A> {
 }
 
 impl<A: Actor> Eq for Clock<A> {}
+
+impl<A: Actor> Hash for Clock<A> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.actor_id.hash(state);
+        self.counter.hash(state);
+    }
+}
 
 // Generate arbitrary (random) clocks.  needed by quickcheck.
 impl<A: Actor + Arbitrary> Arbitrary for Clock<A> {
