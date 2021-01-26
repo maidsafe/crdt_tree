@@ -51,7 +51,10 @@ pub mod treemeta;
 /// This module contains `TreeNode`.
 pub mod treenode;
 
+/// This module contains `TreeReplica`.
+pub mod treereplica;
+
 pub use self::{
     clock::Clock, logopmove::LogOpMove, opmove::OpMove, state::State, tree::Tree, treeid::TreeId,
-    treemeta::TreeMeta, treenode::TreeNode,
+    treemeta::TreeMeta, treenode::TreeNode, treereplica::TreeReplica,
 };
