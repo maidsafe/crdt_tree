@@ -7,32 +7,15 @@
 // specific language governing permissions and limitations relating to use of the SAFE Network
 // Software.
 
-//! Implements `LogOpMove`, a log entry used by `State`
-//!
-//! For usage/examples, see:
-//!   examples/tree.rs
-//!   test/tree.rs
-//!
-//! This code aims to be an accurate implementation of the
-//! tree crdt described in:
-//!
-//! "A highly-available move operation for replicated trees
-//! and distributed filesystems" [1] by Martin Klepmann, et al.
-//!
-//! [1] <https://martin.kleppmann.com/papers/move-op.pdf>
-//!
-//! For clarity, data structures in this implementation are named
-//! the same as in the paper (`State`, `Tree`) or close to
-//! (`OpMove` --> `Move`, `LogOpMove` --> `LogOp`).  Some are not explicitly
-//! named in the paper, such as TreeId, TreeMeta, TreeNode, Clock.
-
 use serde::{Deserialize, Serialize};
 use std::cmp::{Eq, PartialEq};
 
 use super::{Clock, OpMove, TreeId, TreeMeta, TreeNode};
 use crdts::Actor;
 
-/// From the paper:
+/// Implements `LogOpMove`, a log entry used by `State`
+///
+/// From the paper[1]:
 /// ----
 /// In order to correctly apply move operations, a replica needs
 /// to maintain not only the current state of the tree, but also
@@ -53,6 +36,7 @@ use crdts::Actor;
 /// such that (p', m', c') E tree, then `oldp` is set to `Some(p', m')`.
 /// The `get_parent()` function implements this.
 /// ----
+/// [1] <https://martin.kleppmann.com/papers/move-op.pdf>
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct LogOpMove<ID: TreeId, TM: TreeMeta, A: Actor> {
     // an operation that is being logged.

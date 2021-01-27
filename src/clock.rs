@@ -7,25 +7,6 @@
 // specific language governing permissions and limitations relating to use of the SAFE Network
 // Software.
 
-//! Implements Lamport Clock
-//!
-//! For usage/examples, see:
-//!   examples/tree.rs
-//!   test/tree.rs
-//!
-//! This code aims to be an accurate implementation of the
-//! tree crdt described in:
-//!
-//! "A highly-available move operation for replicated trees
-//! and distributed filesystems" [1] by Martin Klepmann, et al.
-//!
-//! [1] https://martin.kleppmann.com/papers/move-op.pdf
-//!
-//! For clarity, data structures in this implementation are named
-//! the same as in the paper (State, Tree) or close to
-//! (OpMove --> Move, LogOpMove --> LogOp).  Some are not explicitly
-//! named in the paper, such as TreeId, TreeMeta, TreeNode, Clock.
-
 use crdts::quickcheck::{Arbitrary, Gen};
 use serde::{Deserialize, Serialize};
 use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
@@ -33,7 +14,7 @@ use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use crdts::Actor;
 use std::hash::{Hash, Hasher};
 
-/// lamport clock + actor
+/// Implements a `Lamport Clock` consisting of an `Actor` and an integer counter.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Clock<A: Actor> {
     actor_id: A,

@@ -7,28 +7,6 @@
 // specific language governing permissions and limitations relating to use of the SAFE Network
 // Software.
 
-//! Holds Tree CRDT state and implements the core algorithm.
-//!
-//! `State` is the primary object to instantiate that represents
-//! a CRDT Tree.
-//!
-//! For usage/examples, see:
-//!   examples/tree.rs
-//!   test/tree.rs
-//!
-//! This code aims to be an accurate implementation of the
-//! tree crdt described in:
-//!
-//! "A highly-available move operation for replicated trees
-//! and distributed filesystems" [1] by Martin Klepmann, et al.
-//!
-//! [1] https://martin.kleppmann.com/papers/move-op.pdf
-//!
-//! For clarity, data structures in this implementation are named
-//! the same as in the paper (State, Tree) or close to
-//! (`OpMove` --> `Move`, `LogOpMove` --> `LogOp`).  Some are not explicitly
-//! named in the paper, such as `TreeId`, `TreeMeta`, `TreeNode`, `Clock`.
-
 use serde::{Deserialize, Serialize};
 use std::cmp::{Eq, Ordering, PartialEq};
 
@@ -36,8 +14,24 @@ use super::{Clock, LogOpMove, OpMove, Tree, TreeId, TreeMeta, TreeNode};
 use crdts::{Actor, CmRDT};
 use log::warn;
 
-/// `State`.  This is the primary interface for working with a
-/// Tree CRDT.
+/// Holds Tree CRDT state and implements the core algorithm.
+///
+/// `State` is not tied to any actor/peer and should be equal on any
+/// two replicas where each has applied the same operations.
+///
+/// `State` may be instantiated to manipulate a CRDT Tree or
+/// alternatively the higher level `TreeReplica` may be used.
+///
+/// For usage/examples, see:
+///   tests/tree.rs
+///
+/// This code aims to be an accurate implementation of the
+/// tree crdt algorithm described in:
+///
+/// "A highly-available move operation for replicated trees
+/// and distributed filesystems" [1] by Martin Klepmann, et al.
+///
+/// [1] https://martin.kleppmann.com/papers/move-op.pdf
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct State<ID: TreeId, TM: TreeMeta, A: Actor> {
     // a list of `LogMove` in descending timestamp order.
@@ -63,7 +57,13 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> State<ID, TM, A> {
         &self.tree
     }
 
-    /// returns mutable tree reference
+    /// returns mutable Tree reference
+    ///
+    /// Warning: this is dangerous.  Normally the `Tree` should
+    /// not be mutated directly.
+    ///
+    /// See the demo_move_to_trash in examples/demo.rs for a
+    /// use-case, only after log truncation has been performed.    
     #[inline]
     pub fn tree_mut(&mut self) -> &mut Tree<ID, TM> {
         &mut self.tree
@@ -253,4 +253,4 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> IntoIterator for State<ID, TM, A> {
     }
 }
 
-// See <root>/test/tree.rs for tests
+// See <root>/tests/tree.rs for tests
