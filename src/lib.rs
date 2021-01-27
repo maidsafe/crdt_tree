@@ -10,8 +10,8 @@
 //! Implements Tree Conflict-Free Replicated Data Type (CRDT).
 //!
 //! For usage/examples, see:
-//!   examples/tree.rs
-//!   test/tree.rs
+//!   examples/demo.rs
+//!   tests/tree.rs
 //!
 //! This code aims to be an accurate implementation of the
 //! tree crdt described in:
@@ -27,34 +27,29 @@
 //! named in the paper, such as TreeId, TreeMeta, TreeNode, Clock.
 #![deny(missing_docs)]
 
-/// This module contains a Tree.
-pub mod tree;
+mod tree;
+pub use self::tree::Tree;
 
-/// This module contains State.
-pub mod state;
+mod state;
+pub use self::state::State;
 
-/// This module contains a Clock.
-pub mod clock;
+mod clock;
+pub use self::clock::Clock;
 
-/// This module contains OpMove.
-pub mod opmove;
+mod opmove;
+pub use self::opmove::OpMove;
 
-/// This module contains `LogOpMove`.
-pub mod logopmove;
+mod logopmove;
+pub use self::logopmove::LogOpMove;
 
-/// This module contains `TreeId`.
-pub mod treeid;
+mod treeid;
+pub use self::treeid::TreeId;
 
-/// This module contains `TreeMeta`.
-pub mod treemeta;
+mod treemeta;
+pub use self::treemeta::TreeMeta;
 
-/// This module contains `TreeNode`.
-pub mod treenode;
+mod treenode;
+pub use self::treenode::TreeNode;
 
-/// This module contains `TreeReplica`.
-pub mod treereplica;
-
-pub use self::{
-    clock::Clock, logopmove::LogOpMove, opmove::OpMove, state::State, tree::Tree, treeid::TreeId,
-    treemeta::TreeMeta, treenode::TreeNode, treereplica::TreeReplica,
-};
+mod treereplica;
+pub use self::treereplica::TreeReplica;

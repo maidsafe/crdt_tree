@@ -7,32 +7,19 @@
 // specific language governing permissions and limitations relating to use of the SAFE Network
 // Software.
 
-//! Implements Tree, a set of triples representing current tree structure.
-//!
-//! For usage/examples, see:
-//!   examples/tree.rs
-//!   test/tree.rs
-//!
-//! This code aims to be an accurate implementation of the
-//! tree crdt described in:
-//!
-//! "A highly-available move operation for replicated trees
-//! and distributed filesystems" [1] by Martin Klepmann, et al.
-//!
-//! [1] https://martin.kleppmann.com/papers/move-op.pdf
-//!
-//! For clarity, data structures in this implementation are named
-//! the same as in the paper (State, Tree) or close to
-//! (OpMove --> Move, LogOpMove --> LogOp).  Some are not explicitly
-//! named in the paper, such as TreeId, TreeMeta, TreeNode, Clock.
-
 use serde::{Deserialize, Serialize};
 use std::cmp::{Eq, PartialEq};
 use std::collections::HashMap;
 
 use super::{TreeId, TreeMeta, TreeNode};
 
-/// From the paper:
+/// Implements `Tree`, a set of triples representing current tree structure.
+///
+/// Normally this `Tree` struct should not be instantiated directly.
+/// Instead instantiate `State` (lower-level) or `TreeReplica` (higher-level)
+/// and invoke operations on them.
+///
+/// From the paper[1]:
 /// ----
 /// We can represent the tree as a set of (parent, meta, child)
 /// triples, denoted in Isabelle/HOL as (’n × ’m × ’n) set. When
@@ -47,6 +34,7 @@ use super::{TreeId, TreeMeta, TreeNode};
 /// for c from the set tree, and then add {(p, m, c)} to represent
 /// the new parent-child relationship.
 /// ----
+/// [1] https://martin.kleppmann.com/papers/move-op.pdf
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Tree<ID: TreeId, TM: TreeMeta> {
     triples: HashMap<ID, TreeNode<ID, TM>>, // tree_nodes, indexed by child_id.
@@ -138,6 +126,9 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
         }
     }
 
+    /// returns true if ancestor_id is an ancestor of child_id in tree.
+    ///
+    /// ```text
     /// parent | child
     /// --------------
     /// 1        2
@@ -145,7 +136,7 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
     /// 3        5
     /// 2        6
     /// 6        8
-
+    ///
     ///                  1
     ///               2     3
     ///             6         5
@@ -153,9 +144,7 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
     ///
     /// is 2 ancestor of 8?  yes.
     /// is 2 ancestor of 5?   no.
-
-    /// determines if ancestor_id is an ancestor of node_id in tree.
-    /// returns bool
+    /// ```
     pub fn is_ancestor(&self, child_id: &ID, ancestor_id: &ID) -> bool {
         let mut target_id = child_id;
         while let Some(n) = self.find(&target_id) {
