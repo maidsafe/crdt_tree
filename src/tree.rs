@@ -9,7 +9,9 @@
 
 use serde::{Deserialize, Serialize};
 use std::cmp::{Eq, PartialEq};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+use std::fmt;
+use std::fmt::Debug;
 
 use super::{TreeId, TreeMeta, TreeNode};
 
@@ -38,7 +40,7 @@ use super::{TreeId, TreeMeta, TreeNode};
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Tree<ID: TreeId, TM: TreeMeta> {
     triples: HashMap<ID, TreeNode<ID, TM>>, // tree_nodes, indexed by child_id.
-    children: HashMap<ID, HashMap<ID, bool>>, // parent_id => [child_id => true].  optimization.
+    children: HashMap<ID, HashSet<ID>>,     // parent_id => [child_id].  index/optimization.
 }
 
 impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
@@ -46,7 +48,7 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
     pub fn new() -> Self {
         Self {
             triples: HashMap::<ID, TreeNode<ID, TM>>::new(), // tree_nodes, indexed by child_id.
-            children: HashMap::<ID, HashMap<ID, bool>>::new(), // parent_id => [child_id => true].  optimization.
+            children: HashMap::<ID, HashSet<ID>>::new(), // parent_id => [child_id].  index/optimization.
         }
     }
 
@@ -80,10 +82,10 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
     /// adds a node to the tree
     pub fn add_node(&mut self, child_id: ID, tt: TreeNode<ID, TM>) {
         if let Some(n) = self.children.get_mut(tt.parent_id()) {
-            n.insert(child_id.to_owned(), true);
+            n.insert(child_id.to_owned());
         } else {
-            let mut h: HashMap<ID, bool> = HashMap::new();
-            h.insert(child_id.to_owned(), true);
+            let mut h: HashSet<ID> = HashSet::new();
+            h.insert(child_id.to_owned());
             self.children.insert(tt.parent_id().to_owned(), h);
         }
         self.triples.insert(child_id, tt);
@@ -99,7 +101,7 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
     /// not used by crdt algo.
     pub fn children(&self, parent_id: &ID) -> Vec<ID> {
         if let Some(list) = self.children.get(parent_id) {
-            list.keys().cloned().collect()
+            list.iter().cloned().collect()
         } else {
             Vec::<ID>::default()
         }
@@ -170,5 +172,60 @@ impl<ID: TreeId, TM: TreeMeta> IntoIterator for Tree<ID, TM> {
 
     fn into_iter(self) -> Self::IntoIter {
         self.triples.into_iter()
+    }
+}
+
+impl<ID: TreeId + Debug, TM: TreeMeta + Debug> fmt::Display for Tree<ID, TM> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.print_tree(f)
+    }
+}
+
+impl<ID: TreeId + Debug, TM: TreeMeta + Debug> Tree<ID, TM> {
+    // print a treenode, recursively
+    fn print_treenode(
+        &self,
+        f: &mut fmt::Formatter<'_>,
+        node_id: &ID,
+        depth: usize,
+    ) -> fmt::Result {
+        let findresult = self.find(&node_id);
+        let meta = match findresult {
+            Some(tn) => format!("{:?} [{:?}]", node_id, tn.metadata()),
+            None => format!("{:?}", node_id),
+        };
+        let mut result = writeln!(f, "{:indent$}{}", "", meta, indent = depth * 2);
+
+        for c in self.children(&node_id) {
+            result = self.print_treenode(f, &c, depth + 1);
+            if result.is_err() {
+                break;
+            }
+        }
+        result
+    }
+
+    // print a tree.
+    fn print_tree(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut r: fmt::Result = Ok(());
+
+        let mut seen: HashSet<ID> = Default::default();
+
+        // We iterate through all triples to find the top-level nodes,
+        // i.e. those without any parent (or metadata), then print sub-tree
+        // for each one.
+        // PERF: This is a slow way to find top-level nodes.  We could
+        //       consider keeping a list of them as tree is modified
+        for treenode in self.triples.values() {
+            let p = treenode.parent_id();
+            if self.triples.get(p).is_none() && !seen.contains(p) {
+                seen.insert(p.clone());
+                r = self.print_treenode(f, p, 0);
+                if r.is_err() {
+                    break;
+                }
+            }
+        }
+        r
     }
 }
