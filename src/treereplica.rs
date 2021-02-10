@@ -9,6 +9,9 @@
 
 extern crate crdts;
 
+use serde::{Deserialize, Serialize};
+use std::cmp::{Eq, PartialEq};
+
 use super::{Clock, LogOpMove, OpMove, State, Tree, TreeId, TreeMeta};
 use crdts::Actor;
 use log::debug;
@@ -25,7 +28,7 @@ use std::collections::HashMap;
 ///
 /// `State` is a lower-level interface to the Tree CRDT and is not tied to any
 /// actor/peer.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TreeReplica<ID: TreeId, TM: TreeMeta, A: Actor> {
     state: State<ID, TM, A>, // Tree state
     time: Clock<A>,          // Lamport Clock for this replica/tree.
