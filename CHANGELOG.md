@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.12](https://github.com/maidsafe/crdt_tree/compare/v0.0.11...v0.0.12) (2021-02-10)
+
+
+### Features
+
+* derive missing traits for TreeReplica: Eq, Debug, etc. ([3d35dc5](https://github.com/maidsafe/crdt_tree/commit/3d35dc5688599edba0bcc7769cad71463fb6a67d))
+
 ### [0.0.11](https://github.com/maidsafe/crdt_tree/compare/v0.0.10...v0.0.11) (2021-02-09)
 
 ### [0.0.10](https://github.com/maidsafe/crdt_tree/compare/v0.0.9...v0.0.10) (2021-02-03)
