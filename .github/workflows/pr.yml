@@ -8,10 +8,7 @@ name: PR
 on: pull_request
 
 env:
-  # Run all cargo commands with --verbose.
-  CARGO_TERM_VERBOSE: true
   RUST_BACKTRACE: 1
-  # Deny all compiler warnings.
   RUSTFLAGS: "-D warnings"
 
 jobs:
@@ -28,7 +25,6 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      # Cache.
       - name: Cargo cache registry, index and build
         uses: actions/cache@v2.1.4
         with:
@@ -38,40 +34,32 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-cache-${{ hashFiles('**/Cargo.lock') }}
     
-      # Check if the code is formatted correctly.
       - name: Check formatting
         run: cargo fmt --all -- --check
           
-      # Run Clippy.
       - name: Clippy checks
-        run: cargo clippy --all-targets --all-features
+        run: cargo clippy --all-targets --all-features -- -Dwarnings
 
-  check_pr_size:
-    if: "!startsWith(github.event.pull_request.title, 'Automated version bump')"
-    name: Check PR size doesn't break set limit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+      - name: install rg for licensing verification
+        run: cargo install ripgrep
+
+      - uses: maidsafe/verify-licensing-info@main
+        name: verify licensing
         with:
-          fetch-depth: '0'
-      - uses: maidsafe/pr_size_checker@v2
-        with:
-          max_lines_changed: 200
-  
+          company-name: MaidSafe
+
   coverage:
     if: "!startsWith(github.event.pull_request.title, 'Automated version bump')"
     name: Code coverage check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # Install Rust and required components
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
 
-      # Cache.
       - name: Cargo cache registry, index and build
         uses: actions/cache@v2.1.4
         with:
@@ -81,7 +69,6 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-cache-${{ hashFiles('**/Cargo.lock') }}
 
-      # Run cargo tarpaulin & push result to coveralls.io
       - name: rust-tarpaulin code coverage check
         uses: actions-rs/tarpaulin@v0.1
         with:
@@ -104,7 +91,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # Install Rust and required components
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
@@ -122,7 +108,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # wget the shared deny.toml file from the QA repo
     - shell: bash
       run: wget https://raw.githubusercontent.com/maidsafe/QA/master/misc-scripts/deny.toml
 
@@ -134,14 +119,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # Install Rust
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
 
-      # Cache.
       - name: Cargo cache registry, index and build
         uses: actions/cache@v2.1.4
         with:
@@ -151,11 +134,9 @@ jobs:
             target
           key: ${{ runner.os }}-cargo-cache-${{ hashFiles('**/Cargo.lock') }}
 
-      # Run tests.
       - name: Cargo test
         run: cargo test --release
 
-  # list all duplicate dependencies
   dependencies:
     if: "!startsWith(github.event.pull_request.title, 'Automated version bump')"
     name: List Duplicate Dependencies
@@ -163,18 +144,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # Install Rust
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
 
-      # Run list duplicate dependencies script
       - shell: bash
         run: ./scripts/duplicate_dependency_check
 
-  # Test publish using --dry-run.
   test-publish:
     if: "!startsWith(github.event.pull_request.title, 'Automated version bump')"
     name: Test Publish
@@ -182,13 +160,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # Install Rust
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
 
-      # Cargo publish dry run
       - name: Cargo Publish Dry Run
         run: cargo publish --dry-run

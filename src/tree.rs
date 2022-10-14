@@ -1,11 +1,8 @@
-// Copyright 2020 MaidSafe.net limited.
+// Copyright (c) 2022, MaidSafe.
+// All rights reserved.
 //
-// This SAFE Network Software is licensed to you under the MIT license <LICENSE-MIT
-// http://opensource.org/licenses/MIT> or the Modified BSD license <LICENSE-BSD
-// https://opensource.org/licenses/BSD-3-Clause>, at your option. This file may not be copied,
-// modified, or distributed except according to those terms. Please review the Licences for the
-// specific language governing permissions and limitations relating to use of the SAFE Network
-// Software.
+// This SAFE Network Software is licensed under the BSD-3-Clause license.
+// Please see the LICENSE file for more details.
 
 use serde::{Deserialize, Serialize};
 use std::cmp::{Eq, PartialEq};
@@ -149,7 +146,7 @@ impl<ID: TreeId, TM: TreeMeta> Tree<ID, TM> {
     /// ```
     pub fn is_ancestor(&self, child_id: &ID, ancestor_id: &ID) -> bool {
         let mut target_id = child_id;
-        while let Some(n) = self.find(&target_id) {
+        while let Some(n) = self.find(target_id) {
             if n.parent_id() == ancestor_id {
                 return true;
             }
@@ -189,14 +186,14 @@ impl<ID: TreeId + Debug, TM: TreeMeta + Debug> Tree<ID, TM> {
         node_id: &ID,
         depth: usize,
     ) -> fmt::Result {
-        let findresult = self.find(&node_id);
+        let findresult = self.find(node_id);
         let meta = match findresult {
             Some(tn) => format!("{:?} [{:?}]", node_id, tn.metadata()),
             None => format!("{:?}", node_id),
         };
         let mut result = writeln!(f, "{:indent$}{}", "", meta, indent = depth * 2);
 
-        for c in self.children(&node_id) {
+        for c in self.children(node_id) {
             result = self.print_treenode(f, &c, depth + 1);
             if result.is_err() {
                 break;

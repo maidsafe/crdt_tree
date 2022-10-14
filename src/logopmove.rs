@@ -1,11 +1,8 @@
-// Copyright 2020 MaidSafe.net limited.
+// Copyright (c) 2022, MaidSafe.
+// All rights reserved.
 //
-// This SAFE Network Software is licensed to you under the MIT license <LICENSE-MIT
-// http://opensource.org/licenses/MIT> or the Modified BSD license <LICENSE-BSD
-// https://opensource.org/licenses/BSD-3-Clause>, at your option. This file may not be copied,
-// modified, or distributed except according to those terms. Please review the Licences for the
-// specific language governing permissions and limitations relating to use of the SAFE Network
-// Software.
+// This SAFE Network Software is licensed under the BSD-3-Clause license.
+// Please see the LICENSE file for more details.
 
 use serde::{Deserialize, Serialize};
 use std::cmp::{Eq, PartialEq};
@@ -74,7 +71,7 @@ impl<ID: TreeId, TM: TreeMeta, A: Actor> LogOpMove<ID, TM, A> {
     /// returns `child_id` reference
     #[inline]
     pub fn child_id(&self) -> &ID {
-        &self.op.child_id()
+        self.op.child_id()
     }
 
     /// returns oldp reference
