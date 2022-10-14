@@ -1,12 +1,8 @@
-// Copyright 2020 MaidSafe.net limited.
+// Copyright (c) 2022, MaidSafe.
+// All rights reserved.
 //
-// This SAFE Network Software is licensed to you under the MIT license <LICENSE-MIT
-// http://opensource.org/licenses/MIT> or the Modified BSD license <LICENSE-BSD
-// https://opensource.org/licenses/BSD-3-Clause>, at your option. This file may not be copied,
-// modified, or distributed except according to those terms. Please review the Licences for the
-// specific language governing permissions and limitations relating to use of the SAFE Network
-// Software.
-
+// This SAFE Network Software is licensed under the BSD-3-Clause license.
+// Please see the LICENSE file for more details.
 extern crate crdts;
 
 use crdt_tree::{OpMove, Tree, TreeId, TreeMeta, TreeReplica};
@@ -231,10 +227,10 @@ fn demo_truncate_log() {
     println!("generating move operations...");
 
     // generate some initial ops from all replicas.
-    for mut r in replicas.iter_mut() {
+    for r in replicas.iter_mut() {
         let finaldepth = rand::thread_rng().gen_range(3, 6);
         let mut ops = vec![];
-        mktree_ops(&mut ops, &mut r, root_id, 2, finaldepth);
+        mktree_ops(&mut ops, r, root_id, 2, finaldepth);
         opmoves.extend(r.opmoves(ops));
     }
 
@@ -247,6 +243,7 @@ fn demo_truncate_log() {
     apply_ops_to_replicas(&mut replicas, &opmoves);
 
     #[derive(Debug)]
+    #[allow(dead_code)]
     struct Stat {
         pub replica: TypeActor,
         pub ops_before_truncate: usize,
@@ -397,7 +394,7 @@ fn mktree_ops(
 
 // applies each operation in ops to each replica in replicas.
 fn apply_ops_to_replicas<ID, TM, A>(
-    replicas: &mut Vec<TreeReplica<ID, TM, A>>,
+    replicas: &mut [TreeReplica<ID, TM, A>],
     ops: &[OpMove<ID, TM, A>],
 ) where
     ID: TreeId,
@@ -420,7 +417,7 @@ where
     ID: TreeId + std::fmt::Debug,
     TM: TreeMeta + std::fmt::Debug,
 {
-    let result = tree.find(&node_id);
+    let result = tree.find(node_id);
     let meta = match result {
         Some(tn) => format!("{:?}", tn.metadata()),
         None if depth == 0 => "forest".to_string(),
@@ -430,7 +427,7 @@ where
     };
     println!("{:indent$}{}", "", meta, indent = depth * 2);
 
-    for c in tree.children(&node_id) {
+    for c in tree.children(node_id) {
         print_treenode(tree, &c, depth + 1, with_id);
     }
 }
