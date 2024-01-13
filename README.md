@@ -26,9 +26,9 @@ For clarity, data structures in this implementation are named the same as in the
 
 ## Usage
 
-See [examples/tree.rs](examples/tree.rs) or [tests/tree.rs](tests/tree.rs).
+See [examples/demo.rs](examples/demo.rs) or [tests/tree.rs](tests/tree.rs).
 
-In particular, the Replica struct in examples/tree.rs may be helpful.
+In particular, the Replica struct in examples/demo.rs may be helpful.
 
 ## Other Implementations
 
